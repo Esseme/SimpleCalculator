@@ -12,14 +12,19 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import mathjs.niltonvasques.com.mathjs.MathJS;
 
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.logging.Logger;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
     Button calculateButton;
     private Context context = MainActivity.this;
     private String numberOne, numberTwo;
+    String[] selectedOperation = {null};
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +61,48 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
+
+
+        MathJS math = new MathJS();
+
         ArrayAdapter<CharSequence> arrayAdapter = ArrayAdapter.createFromResource(context, R.array.operations_arrays, R.layout.spinner_item);
         arrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown);
         operationSpinner.setAdapter(arrayAdapter);
+        operationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedOperation[0] = parent.getItemAtPosition(position).toString();
+                Log.d(TAG, "The selected Operation is "+ selectedOperation[0]);
+                calculateButton.setOnClickListener(v -> {
+                    validateResults();
+
+                    if (selectedOperation[0] == "Add"){
+                        /*Do Addition Operation*/
+                        //TODO: How is the library used to do calculations
+                        math.asyncEval(numberOne + numberTwo, s -> Toast.makeText(MainActivity.this, "Math JS result: " + s, Toast.LENGTH_LONG).show());
+
+                    } else if (selectedOperation[0] == "Subtract"){
+                        /*Do Subtraction Operation*/
+
+                    } else if (selectedOperation[0] == "Multiply"){
+                        /*Do Multiplication operation*/
+
+                    }else if (selectedOperation[0] == "Divide"){
+                        /*Do Division Operation*/
+
+                    }
+                });
+
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
     }
 
@@ -83,16 +129,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /* For submitting results to API*/
-    private void submitResults(){
+    private void validateResults(){
         numberOne = numberOneEdit.getText().toString().trim();
         numberTwo = numberTwoEdit.getText().toString().trim();
         boolean validNumberOne = isNumberOneValid(numberOne);
         boolean validNumberTwo = isNumberTwoValid(numberTwo);
         if (!validNumberOne || !validNumberTwo) return;
-
-        MathJS math = new MathJS();
-
-
     }
 
     /* Validations */
